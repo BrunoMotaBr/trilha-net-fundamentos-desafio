@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace DesafioFundamentos.Models
 {
     public class Estacionamento
@@ -12,35 +14,44 @@ namespace DesafioFundamentos.Models
             this.precoPorHora = precoPorHora;
         }
 
-        public void AdicionarVeiculo()
+        public bool AdicionarVeiculo()
         {
-            // TODO: Pedir para o usuário digitar uma placa (ReadLine) e adicionar na lista "veiculos"
-            // *IMPLEMENTE AQUI*
-            Console.WriteLine("Digite a placa do veículo para estacionar:");
+            string placa = "";
+            string resposta = "";
+            Console.Write("Digite a placa do veículo para estacionar: ");
+            placa = Console.ReadLine();
+            if(ValidarPlaca(placa)){
+                veiculos.Add(placa);
+                return true;
+            }else{
+                Console.WriteLine("Placa invalida esperamos os seguintes padrões (AAA-1111) e/ou (AAA1A11)");
+                Console.Write("Pressione ENTER para continuar ou 0 e ENTER para voltar: ");
+                resposta = Console.ReadLine();
+                Console.Clear();
+                if(resposta == "0"){
+                    return false;
+                }else{
+                    AdicionarVeiculo();
+                    return false;
+                }
+            }
         }
 
         public void RemoverVeiculo()
         {
-            Console.WriteLine("Digite a placa do veículo para remover:");
-
-            // Pedir para o usuário digitar a placa e armazenar na variável placa
-            // *IMPLEMENTE AQUI*
             string placa = "";
-
+            Console.Write("Digite a placa do veículo para remover: ");
+            placa = Console.ReadLine();
             // Verifica se o veículo existe
             if (veiculos.Any(x => x.ToUpper() == placa.ToUpper()))
             {
-                Console.WriteLine("Digite a quantidade de horas que o veículo permaneceu estacionado:");
-
-                // TODO: Pedir para o usuário digitar a quantidade de horas que o veículo permaneceu estacionado,
-                // TODO: Realizar o seguinte cálculo: "precoInicial + precoPorHora * horas" para a variável valorTotal                
-                // *IMPLEMENTE AQUI*
                 int horas = 0;
-                decimal valorTotal = 0; 
+                Console.Write("Digite a quantidade de horas que o veículo permaneceu estacionado: ");
+                horas = Convert.ToInt32(Console.ReadLine()); 
+                
+                decimal valorTotal = CalcularValorParaReceber(horas); 
 
-                // TODO: Remover a placa digitada da lista de veículos
-                // *IMPLEMENTE AQUI*
-
+                veiculos.Remove(placa);
                 Console.WriteLine($"O veículo {placa} foi removido e o preço total foi de: R$ {valorTotal}");
             }
             else
@@ -55,13 +66,27 @@ namespace DesafioFundamentos.Models
             if (veiculos.Any())
             {
                 Console.WriteLine("Os veículos estacionados são:");
-                // TODO: Realizar um laço de repetição, exibindo os veículos estacionados
-                // *IMPLEMENTE AQUI*
+                foreach(string veiculo in veiculos){
+                    Console.WriteLine(veiculo.ToUpper());
+                }
             }
             else
             {
                 Console.WriteLine("Não há veículos estacionados.");
             }
+        }
+        private bool ValidarPlaca(string placa){
+
+            //Verifica se o usuario digitou uma placa valida seguindo um dos dois padroes (AAA-1111) ou (AAA1A11)
+            string padraoAntigo = @"^[a-zA-Z]{3}-\d{4}$";
+            string padraoNovo = @"^[a-zA-Z]{3}\d[a-zA-Z]\d{2}$";
+            if (Regex.IsMatch(placa, padraoAntigo) || Regex.IsMatch(placa, padraoNovo)) return true;
+            else return false;
+
+        }
+        private decimal CalcularValorParaReceber(decimal horas){
+            // Responsavel por realizar o calculo do valor
+            return this.precoInicial + (this.precoPorHora * horas);
         }
     }
 }
